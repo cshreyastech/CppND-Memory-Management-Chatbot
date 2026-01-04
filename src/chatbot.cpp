@@ -30,6 +30,8 @@ ChatBot::ChatBot(std::string filename)
     _image = new wxBitmap(filename, wxBITMAP_TYPE_PNG);
 }
 
+// 1. Destructor: Frees the dynamically allocated memory
+// This is called automatically when an object of this class goes out of scope.
 ChatBot::~ChatBot()
 {
     std::cout << "ChatBot Destructor" << std::endl;
@@ -44,6 +46,86 @@ ChatBot::~ChatBot()
 
 //// STUDENT CODE
 ////
+// 2. Copy Constructor: Creates a new object as a deep copy of another.
+// It is called when an object is initialized with another object of the same type.
+// E.g., MyDynamicClass newObj = oldObj;
+ChatBot::ChatBot(const ChatBot& other)
+{
+  std::cout << "Copy constructor called. Performing a deep copy." << std::endl;
+  
+  _image = new wxBitmap(*other._image);
+
+  _currentNode = other._currentNode;
+  _rootNode = other._rootNode;
+  _chatLogic = other._chatLogic;
+}
+
+// 3. Copy Assignment Operator: Assigns one object's value to another.
+// It is called when an object is assigned to another.
+// E.g., existingObj = otherObj;
+ChatBot& ChatBot::operator=(const ChatBot& other)
+{
+  std::cout << "Copy assignment operator called." << std::endl;
+  if (this != &other) {
+    delete _image;
+    delete _currentNode;
+    delete _rootNode;
+    delete _chatLogic;
+
+    _image = new wxBitmap(*other._image);
+    _currentNode = other._currentNode;
+    _rootNode = other._rootNode;
+    _chatLogic = other._chatLogic;
+  }
+
+  return *this;
+}
+
+// 4. Move Constructor: Steals the resources from another object.
+// The 'other' parameter is an rvalue reference (&&).
+ChatBot::ChatBot(ChatBot&& other) noexcept
+{
+  std::cout << "Move constructor called. Stealing resources." << std::endl;
+  // Steal the pointer from the source object.
+  _image = other._image;
+  _currentNode = other._currentNode;
+  _rootNode = other._rootNode;
+  _chatLogic = other._chatLogic;
+  
+  
+  // Null out the source's pointer so its destructor doesn't free the memory.
+  other._image = nullptr;
+  other._currentNode = nullptr;
+  other._rootNode = nullptr;
+  other._chatLogic = nullptr;
+}
+
+// 5. Move Assignment Operator: Steals the resources from another object.
+ChatBot& ChatBot::operator=(ChatBot&& other) noexcept
+{
+  std::cout << "Move assignment operator called." << std::endl;
+  // Check for self-assignment.
+  if (this != &other) {
+    // First, free our own memory.
+    delete _image;
+    delete _currentNode;
+    delete _rootNode;
+    delete _chatLogic;
+    
+    // Then, steal the pointer from the source.
+    _image = other._image;
+    _currentNode = other._currentNode;
+    _rootNode = other._rootNode;
+    _chatLogic = other._chatLogic;
+
+    // Null out the source's pointer.
+    other._image = nullptr;
+    other._currentNode = nullptr;
+    other._rootNode = nullptr;
+    other._chatLogic = nullptr;
+  }
+  return *this;
+}
 
 ////
 //// EOF STUDENT CODE

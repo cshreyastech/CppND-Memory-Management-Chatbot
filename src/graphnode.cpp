@@ -4,6 +4,7 @@
 GraphNode::GraphNode(int id)
 {
     _id = id;
+
 }
 
 GraphNode::~GraphNode()
@@ -11,7 +12,8 @@ GraphNode::~GraphNode()
     //// STUDENT CODE
     ////
 
-    delete _chatBot; 
+    // delete _chatBot;
+    _chatBot = nullptr;
 
     ////
     //// EOF STUDENT CODE
