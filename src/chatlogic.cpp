@@ -144,32 +144,44 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
             if (parentToken != tokens.end() && childToken != tokens.end())
             {
               // get iterator on incoming and outgoing node via ID search
-              auto parentNode = std::find_if(_nodes.begin(), _nodes.end(), [&parentToken](std::unique_ptr<GraphNode>& node) { return node->GetID() == std::stoi(parentToken->second); });
-              auto childNode = std::find_if(_nodes.begin(), _nodes.end(), [&childToken](std::unique_ptr<GraphNode>& node) { return node->GetID() == std::stoi(childToken->second); });
+              auto parentNode = std::find_if(_nodes.begin(), _nodes.end(), 
+                [&parentToken](const std::unique_ptr<GraphNode>& node) 
+                { 
+                  return node->GetID() == std::stoi(parentToken->second); 
+                });
+
+              auto childNode = std::find_if(_nodes.begin(), _nodes.end(), 
+                [&childToken](std::unique_ptr<GraphNode>& node) 
+                { 
+                  return node->GetID() == std::stoi(childToken->second); 
+                });
 
               // create new edge
               std::unique_ptr<GraphEdge> edge = std::make_unique<GraphEdge>(id);
               // Need GraphNode* for setters:
-              GraphNode* child = (*childNode).get();
-              GraphNode* parent = (*parentNode).get();
+              
+              GraphNode* parent = parentNode->get();
+              GraphNode* child = childNode->get();
 
-              edge->SetChildNode(child);
               edge->SetParentNode(parent);
-
+              edge->SetChildNode(child);
 
               // find all keywords for current node
               AddAllTokensToElement("KEYWORD", tokens, *edge);
 
               // store reference in child node and parent node
-              // keep a raw pointer for linking (nodes store non-owning pointers):
+              // raw pointer used for child's incoming list (non-owning)
               GraphEdge* edge_raw = edge.get();
 
               // transfer ownership into _edges
-              _edges.emplace_back(std::move(edge));
+              // _edges.emplace_back(std::move(edge));
 
               // store references in child/parent
+              // child stores non-owning incoming reference
               child->AddEdgeToParentNode(edge_raw);
-              parent->AddEdgeToChildNode(edge_raw);
+
+              // parent takes ownership of outgoing edge (move semantics)
+              parent->AddEdgeToChildNode(std::move(edge));
             }
 
             ////
