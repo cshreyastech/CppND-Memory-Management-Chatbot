@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "chatgui.h"
+#include <utility>
 
 // forward declarations
 class ChatBot;

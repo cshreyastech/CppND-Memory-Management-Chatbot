@@ -17,11 +17,11 @@ ChatLogic::ChatLogic()
   //// STUDENT CODE
   ////
 
-  // create instance of chatbot
-  _chatBot = new ChatBot("../images/chatbot.png");
+  // // create instance of chatbot
+  // _chatBot = new ChatBot("../images/chatbot.png");
 
-  // add pointer to chatlogic so that chatbot answers can be passed on to the GUI
-  _chatBot->SetChatLogicHandle(this);
+  // // add pointer to chatlogic so that chatbot answers can be passed on to the GUI
+  // _chatBot->SetChatLogicHandle(this);
 
   ////
   //// EOF STUDENT CODE
@@ -33,7 +33,8 @@ ChatLogic::~ChatLogic()
   ////
 
   // delete chatbot instance
-  delete _chatBot;
+  // delete _chatBot;
+  _chatBot = nullptr;
 
   ////
   //// EOF STUDENT CODE
@@ -208,28 +209,49 @@ void ChatLogic::LoadAnswerGraphFromFile(std::string filename)
   ////
 
   // identify root node
-  GraphNode *rootNode = nullptr;
-  for (auto it = std::begin(_nodes); it != std::end(_nodes); ++it)
-  {
-    // search for nodes which have no incoming edges
-    if ((*it)->GetNumberOfParents() == 0)
-    {
+  // GraphNode *rootNode = nullptr;
+  // for (auto it = std::begin(_nodes); it != std::end(_nodes); ++it)
+  // {
+  //   // search for nodes which have no incoming edges
+  //   if ((*it)->GetNumberOfParents() == 0)
+  //   {
 
-      if (rootNode == nullptr)
+  //     if (rootNode == nullptr)
+  //     {
+  //       rootNode = (*it).get(); // assign current node to root
+  //     }
+  //     else
+  //     {
+  //       std::cout << "ERROR : Multiple root nodes detected" << std::endl;
+  //     }
+  //   }
+  // }
+
+  // // add chatbot to graph root node
+  // _chatBot->SetRootNode(rootNode);
+  // rootNode->MoveChatbotHere(_chatBot);
+
+
+
+  // identify root node (same as you already do)
+  GraphNode *rootNode = nullptr;
+  for (auto it = _nodes.begin(); it != _nodes.end(); ++it)
+  {
+      if ((*it)->GetNumberOfParents() == 0)
       {
-        rootNode = (*it).get(); // assign current node to root
+          rootNode = it->get();
+          break;
       }
-      else
-      {
-        std::cout << "ERROR : Multiple root nodes detected" << std::endl;
-      }
-    }
   }
 
-  // add chatbot to graph root node
-  _chatBot->SetRootNode(rootNode);
-  rootNode->MoveChatbotHere(_chatBot);
-  
+  // Create ChatBot on the stack (prints "ChatBot Constructor")
+  ChatBot chatBot("../images/chatbot.png");
+  chatBot.SetChatLogicHandle(this);
+  chatBot.SetRootNode(rootNode);
+
+  // Move into root node using move semantics
+  rootNode->MoveChatbotHere(std::move(chatBot));
+
   ////
   //// EOF STUDENT CODE
 }
